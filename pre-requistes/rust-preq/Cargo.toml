@@ -1,0 +1,10 @@
+[package]
+name = "rust-preq"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+solana-sdk = "1.15.2"
+bs58 = "0.4"
+solana-client = "1.15.2"
+solana-program = "2.3.0"
