@@ -4,8 +4,6 @@
 **Project:** Solana Turbine  
 **Quarter:** 2025 Q3  
 
-A comprehensive Solana development repository showcasing various blockchain development concepts, from basic prerequisites to advanced DeFi applications.
-
 ## 🚀 Overview
 
 This repository contains the assignments and learnings taught inside Solana Turbine Q3 classes.
@@ -214,5 +212,3 @@ This project is licensed under the MIT License.
 **Quarter:** 2025 Q3  
 
 ---
-
-*This repository serves as a comprehensive learning resource for Solana blockchain development, covering essential concepts.*
