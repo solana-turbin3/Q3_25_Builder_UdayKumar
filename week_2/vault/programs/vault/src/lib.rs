@@ -6,7 +6,7 @@ use anchor_lang::system_program::{Transfer,transfer};
 declare_id!("4vrVwqf5txbavZ5viVRbTsPS8rTB986v3PWBtwbnLrXE");
 
 #[program]
-pub mod anchor_vault {
+pub mod vault {
     use super::*;
     pub fn initialize(ctx: Context<Initialize>)-> Result <()>{
         ctx.accounts.initialize(&ctx.bumps)
