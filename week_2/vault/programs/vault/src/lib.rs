@@ -63,16 +63,29 @@ impl<'info> Payment<'info>{
 
 // deposit function
     pub fn deposit(&mut self, amount:u64)-> Result<()>{
+        // If amount is greater than user's current lamports, reject
+        require!(
+            amount<= self.user.lamports(),
+            CustomError::InsufficientUserBalance
+        );
         let  cpi_program:AccountInfo<'_>= self.system_program.to_account_info();
         let cpi_accounts: Transfer<'_> = Transfer{
             from: self.user.to_account_info(),
             to: self.vault.to_account_info()
         };
         let cpi_ctx= CpiContext::new(cpi_program, cpi_accounts);
-        transfer(cpi_ctx, amount)
+        transfer(cpi_ctx, amount)?;
+        //track deposit
+        self.vault_state.total_deposits += amount;
+        Ok(())
     }
 // withdraw function
+    // Check if user tries to withdraw more than deposited
     pub fn withdraw(&mut self, amount:u64) -> Result<()>{
+        require!(
+            amount<=self.vault_state.total_deposits,
+            CustomError::InsufficientDeposits
+        );
         let cpi_program: AccountInfo<'_> = self.system_program.to_account_info();
         let cpi_accounts:Transfer<'_> = Transfer{
             from: self.vault.to_account_info(),
@@ -86,7 +99,10 @@ impl<'info> Payment<'info>{
         ];
         let signer_seeds: &[&[&[u8]]; 1] = &[&seeds[..]];
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
-        transfer(cpi_ctx, amount)
+        transfer(cpi_ctx, amount)?;
+        //subtracting withdrawn amopunt
+        self.vault_state.total_deposits-= amount;
+        Ok(())
     }
 }
 
@@ -118,4 +134,13 @@ pub struct VaultState {
 
 impl Space for VaultState {
     const INIT_SPACE: usize = 8 + 1*2 +32 +8;
+}
+
+#[error_code]
+
+pub enum CustomError{
+    #[msg("You are trying to withdraw more than you deposited.")]
+    InsufficientDeposits,
+    #[msg("You do not have enough SOL to make this deposit.")]
+    InsufficientUserBalance
 }
