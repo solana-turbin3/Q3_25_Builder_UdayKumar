@@ -1,0 +1,3 @@
+[submodule "capstone-project"]
+	path = capstone-project
+	url = https://github.com/udayempire/goalify
