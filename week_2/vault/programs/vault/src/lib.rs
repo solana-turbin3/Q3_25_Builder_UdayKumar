@@ -52,7 +52,7 @@ pub struct Payment<'info>{
     )]
     pub vault: SystemAccount<'info>,
     #[account(
-        seeds = [b"vault",user.key().as_ref()], //no need to mutate here as we are only reading the values here not writing
+        seeds = [b"state",user.key().as_ref()], //no need to mutate here as we are only reading the values here not writing
         bump = vault_state.state_bump
     )]
     pub vault_state: Account<'info, VaultState>,
@@ -60,6 +60,8 @@ pub struct Payment<'info>{
 }
 
 impl<'info> Payment<'info>{
+
+// deposit function
     pub fn deposit(&mut self, amount:u64)-> Result<()>{
         let  cpi_program:AccountInfo<'_>= self.system_program.to_account_info();
         let cpi_accounts: Transfer<'_> = Transfer{
@@ -69,7 +71,7 @@ impl<'info> Payment<'info>{
         let cpi_ctx= CpiContext::new(cpi_program, cpi_accounts);
         transfer(cpi_ctx, amount)
     }
-
+// withdraw function
     pub fn withdraw(&mut self, amount:u64) -> Result<()>{
         let cpi_program: AccountInfo<'_> = self.system_program.to_account_info();
         let cpi_accounts:Transfer<'_> = Transfer{
@@ -100,6 +102,8 @@ impl<'info> Initialize<'info>{
         transfer(cpi_ctx, rent_exempt)?;
         self.vault_state.vault_bump = bumps.vault;
         self.vault_state.state_bump = bumps.vault_state;
+        self.vault_state.owner = self.user.key();
+        self.vault_state.total_deposits = 0;
         Ok(())
     }
 }
@@ -107,9 +111,11 @@ impl<'info> Initialize<'info>{
 #[account]
 pub struct VaultState {
     pub vault_bump: u8,
-    pub state_bump: u8
+    pub state_bump: u8,
+    pub owner: Pubkey,
+    pub total_deposits: u64
 }
 
 impl Space for VaultState {
-    const INIT_SPACE: usize = 8 + 1*2;
+    const INIT_SPACE: usize = 8 + 1*2 +32 +8;
 }
