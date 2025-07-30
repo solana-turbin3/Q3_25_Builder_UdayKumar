@@ -11,6 +11,7 @@ describe("vault", () => {
     const provider = anchor.AnchorProvider.env();
     anchor.setProvider(provider);
     const program = anchor.workspace.Vault as Program<Vault>;
+    
     it("Initialzing the vault", async()=>{
       const vaultState = anchor.web3.Keypair.generate();
       await program.methods
