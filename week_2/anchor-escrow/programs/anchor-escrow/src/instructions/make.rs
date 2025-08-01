@@ -44,3 +44,28 @@ pub struct Make<'info>{
     pub vault: InterfaceAccount<'info,TokenAccount>,
     pub Token_program: InterfaceAccount<'info, TokenInterface>
 }
+
+impl<'info>Make<'info>{
+    pub fn init_escrow(&mut self, seed:u64, recieve: u64, bumps: &MakeBumps) ->Result<()>{
+        self.escrow.set_inner(
+            Escrow{ 
+                seed:(), 
+                maker: self.maker.key(), 
+                mint_a: self.mint_a.key(), 
+                mint_b: self.mint_b.key(),
+                recieve,
+                bump: bumps.escrow
+        });
+        Ok(())
+    }
+    pub fn deposit(&mut self, deposit:u64)->Result<()>{
+        let transfer_accounts: Transfer_checked<'_> = Transfer_checked{
+            from: self.maker_ata_a.to_account_info(),
+            mint: self.mint_a.to_account_info(),
+            to: self.vault.to_account_info(),
+            authority: self.maker.to_account_info()
+        };
+        let cpi_ctx: CpiContext= CpiContext::new(program: self.token_program.to_account_info(), transfer_accounts);
+        transfer_checked(cpi_ctx, amount: deposit, self.mint_a.decimals)
+    }
+}
