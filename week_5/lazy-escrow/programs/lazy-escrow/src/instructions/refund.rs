@@ -14,7 +14,7 @@ use anchor_spl::{
 
 use crate::state::{
     Escrow, 
-
+    LazyEscrow
 };
 
 #[derive(Accounts)]
